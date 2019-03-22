@@ -22,11 +22,16 @@ public class SeasickMain {
 	 * @throws SQLException
 	 */
 	public static void main(String[] args) throws SQLException {
+		/* User insertion and deletion testing */
+		/*
 		Config conf = new Config("seasick.conf");
 		Query query = new Query(conf);
 		User user = new User("testty", "idklol", "gimme@gimme.net", "Hallo", "vad", false);
 		query.insertUser(user);
 		query.dropUser(user);
 		query.close();
+		*/
+		
+		
 	}
 }
