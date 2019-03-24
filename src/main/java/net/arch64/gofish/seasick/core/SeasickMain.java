@@ -25,7 +25,7 @@ public class SeasickMain {
 	 * @throws IOException 
 	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
+	public static void main(String[] args) throws SQLException {
 		/* database testing */
 		/*
 		Config conf = new Config("seasick.conf");
@@ -36,7 +36,7 @@ public class SeasickMain {
 		query.close();
 		*/
 		
-		Server serve = new Server(12345);
+		Server serve = new Server(12345, 1000);
 		serve.start();
 	}
 }

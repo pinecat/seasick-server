@@ -4,10 +4,14 @@ package net.arch64.gofish.seasick.serve;
 /* Imports */
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 /* Class: Server */
 public class Server {
 	private ServerSocket serveSock;
+	private int connLimit;
+	private Queue<Socket> q;
+	
 	/**
 	 * Server
 	 * @param port
@@ -15,8 +19,13 @@ public class Server {
 	 * Constructor for the Server class.
 	 * @throws IOException 
 	 */
-	public Server(int port) throws IOException {
-		serveSock = new ServerSocket(port);
+	public Server(int port, int limit) {
+		try {
+			serveSock = new ServerSocket(port);
+		} catch (IOException e) {}
+		connLimit = limit;
+		q = new LinkedList<Socket>();
+		ConnThread.setIncomingConns(0);
 	}
 	
 	/**
@@ -25,11 +34,13 @@ public class Server {
 	 * Start listening with the server.
 	 * @throws IOException 
 	 */
-	public void start() throws IOException {
+	public void start() {
 		while (true) {
-			Socket sock = serveSock.accept();
-			ConnThread connThread = new ConnThread(sock);
-			connThread.start();
+			try {
+				Socket sock = serveSock.accept();
+				ConnThread connThread = new ConnThread(sock);
+				connThread.start();
+			} catch (IOException e) {}
 		}
 	}
 	
