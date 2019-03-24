@@ -7,9 +7,11 @@
 /* Package */
 package net.arch64.gofish.seasick.core;
 
+import java.io.IOException;
 /* Imports */
 import java.sql.*;
 import net.arch64.gofish.seasick.users.*;
+import net.arch64.gofish.seasick.serve.*;
 
 /* Class: Main */
 public class SeasickMain {
@@ -20,13 +22,21 @@ public class SeasickMain {
 	 *
 	 * Main function of program.
 	 * @throws SQLException
+	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws SQLException, IOException, InterruptedException {
+		/* database testing */
+		/*
 		Config conf = new Config("seasick.conf");
 		Query query = new Query(conf);
 		User user = new User("testty", "idklol", "gimme@gimme.net", "Hallo", "vad", false);
 		query.insertUser(user);
 		query.dropUser(user);
 		query.close();
+		*/
+		
+		Server serve = new Server(12345);
+		serve.start();
 	}
 }
