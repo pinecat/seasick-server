@@ -21,11 +21,11 @@ public class Server {
 	 */
 	public Server(int port, int limit) {
 		try {
-			serveSock = new ServerSocket(port);
+			serveSock = new ServerSocket(port); // create server socket on specified port
 		} catch (IOException e) {}
-		connLimit = limit;
-		q = new LinkedList<Socket>();
-		ConnThread.setIncomingConns(0);
+		connLimit = limit; // set the connection limit
+		q = new LinkedList<Socket>(); // create queue for conn limiting purposes
+		ConnThread.setIncomingConns(0); // intialize incoming conns to 0
 	}
 	
 	/**
@@ -37,11 +37,25 @@ public class Server {
 	public void start() {
 		while (true) {
 			try {
-				Socket sock = serveSock.accept();
-				ConnThread connThread = new ConnThread(sock);
-				connThread.start();
+				Socket sock = serveSock.accept(); // accept connections
+				ConnThread connThread = new ConnThread(sock); // create thread to handle the connection
+				connThread.start(); // start thread to handle connections
 			} catch (IOException e) {}
 		}
+		
+//		while (true) {
+//			try {
+//				Socket sock = serveSock.accept();
+//				if (sock != null && !sock.isClosed()) {
+//					q.add(sock);
+//				}
+//				while (ConnThread.getIncomingConns() < connLimit) {
+//					ConnThread connThread = new ConnThread(q.remove());
+//					connThread.start();
+//					ConnThread.incIncomingConns();
+//				}
+//			} catch (IOException e) {}
+//		}
 	}
 	
 	/**

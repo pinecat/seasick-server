@@ -7,7 +7,6 @@
 /* Package */
 package net.arch64.gofish.seasick.core;
 
-import java.io.IOException;
 /* Imports */
 import java.sql.*;
 import net.arch64.gofish.seasick.users.*;
@@ -36,6 +35,7 @@ public class SeasickMain {
 		query.close();
 		*/
 		
+		/* server testing */
 		Server serve = new Server(12345, 1000);
 		serve.start();
 	}
