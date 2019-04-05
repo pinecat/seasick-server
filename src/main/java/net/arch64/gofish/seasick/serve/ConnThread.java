@@ -29,18 +29,28 @@ public class ConnThread extends Thread {
 	 */
 	public void run() {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-			String line = "";
-			while (sock != null && !sock.isClosed() && line != null && !line.equals("END")) {
-				line = in.readLine();
-				if (line != null) {
-					System.out.println("Thread: " + this.getId() + " | " + line);
-				}
+			ObjectInputStream in = new ObjectInputStream(sock.getInputStream());
+			while (sock != null && !sock.isClosed()) {
+				Message msg = (Message) in.readObject();
+				System.out.println(msg.getMsg());
 			}
-			sock.close();
-			decIncomingConns();
-		} catch (IOException e) {}
+			
+		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); }
 	}
+//	public void run() {
+//		try {
+//			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+//			String line = "";
+//			while (sock != null && !sock.isClosed() && line != null && !line.equals("END")) {
+//				line = in.readLine();
+//				if (line != null) {
+//					System.out.println("Thread: " + this.getId() + " | " + line);
+//				}
+//			}
+//			sock.close();
+//			decIncomingConns();
+//		} catch (IOException e) {}
+//	}
 	
 	public static int getIncomingConns() { return incomingConns; } /** getIncomingConns(): @return incomingConns */
 	public static void setIncomingConns(int n) { incomingConns = n; } /** setIncomingConns(): @set incomingConns */
