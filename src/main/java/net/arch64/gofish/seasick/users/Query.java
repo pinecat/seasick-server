@@ -170,4 +170,28 @@ public class Query {
 		} catch(SQLException e) {}
 		return false;
 	}
+
+	/**
+	 * getForumsPosts
+	 * @return
+	 * 
+	 * Used to update the view for the app that shows the forum posts.
+	 * Gives the POST_ID, USERNAME, Content of the post, and Rating of the post (upvotes or likes on the post)
+	 */
+	public ResultSet getForumPosts() {
+		Statement stmt=null;
+		ResultSet rs=null;
+		try {
+			stmt=conn.createStatement();
+			rs=stmt.executeQuery("select f.POST_ID, u.USERNAME, f.Content, f.Rating from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
+			while(rs.next()) {
+				int POST_ID = rs.getInt("f.POST_ID");
+				String USERNAME = rs.getString("u.USERNAME");
+				String Content = rs.getString("f.Content");
+				double Rating = rs.getDouble("f.Rating");
+				System.out.printf("%d %s\n%s %.1f\n\n", POST_ID, USERNAME, Content, Rating);
+			}
+		}catch(SQLException e) {}
+		return rs;
+	}
 }
