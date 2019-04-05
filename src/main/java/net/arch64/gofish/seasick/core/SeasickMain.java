@@ -25,11 +25,8 @@ public class SeasickMain {
 	 * @throws InterruptedException 
 	 */
 	public static void main(String[] args) throws SQLException {
-<<<<<<< HEAD
 		/* database testing */
-=======
 		/* User insertion and deletion testing */
->>>>>>> e9aa7abbee10b5335b9553b0bbd59e507aa84613
 		/*
 		Config conf = new Config("seasick.conf");
 		Query query = new Query(conf);
@@ -39,12 +36,9 @@ public class SeasickMain {
 		query.close();
 		*/
 		
-<<<<<<< HEAD
 		/* server testing */
+		System.out.println("Server started listening on port 12345....");
 		Server serve = new Server(12345, 1000);
 		serve.start();
-=======
-		
->>>>>>> e9aa7abbee10b5335b9553b0bbd59e507aa84613
 	}
 }
