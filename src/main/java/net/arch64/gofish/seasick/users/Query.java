@@ -194,4 +194,22 @@ public class Query {
 		}catch(SQLException e) {}
 		return rs;
 	}
+	
+	/**
+	 * makeForumPost:
+	 * 
+	 * add a forum post to the forum table in the database
+	 * the POST_ID is auto-incrementing in the database
+	 * needs the UserID, the content, and the rating for the post itself
+	 * the post rating should start at zero and be averaged out between the overall rating and how many people have rated it
+	 */
+	public void makeForumPost(int userID, String content) {
+		Statement stmt=null;
+		try {
+			stmt=conn.createStatement();
+			stmt.executeUpdate("insert into FORUMS (USERS_ID, CONTENT, RATING) values("+userID+", \""+content+"\","+0+")");
+		}catch(SQLException e) {}
+	}
+	
+	
 }
