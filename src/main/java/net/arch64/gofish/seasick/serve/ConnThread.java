@@ -3,6 +3,9 @@ package net.arch64.gofish.seasick.serve;
 
 /* Imports */
 import java.net.*;
+
+import com.google.gson.Gson;
+
 import java.io.*;
 
 /* Class: ConnThread */
@@ -27,30 +30,35 @@ public class ConnThread extends Thread {
 	 * with .start(). Starts handling of a
 	 * client connection to the server.
 	 */
-	public void run() {
-		try {
-			ObjectInputStream in = new ObjectInputStream(sock.getInputStream());
-			while (sock != null && !sock.isClosed()) {
-				Message msg = (Message) in.readObject();
-				System.out.println(msg.getMsg());
-			}
-			
-		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); }
-	}
 //	public void run() {
 //		try {
-//			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-//			String line = "";
-//			while (sock != null && !sock.isClosed() && line != null && !line.equals("END")) {
-//				line = in.readLine();
-//				if (line != null) {
-//					System.out.println("Thread: " + this.getId() + " | " + line);
-//				}
+//			ObjectInputStream in = new ObjectInputStream(sock.getInputStream());
+//			while (sock != null && !sock.isClosed()) {
+//				Message msg = (Message) in.readObject();
+//				System.out.println(msg.getMsg());
 //			}
-//			sock.close();
-//			decIncomingConns();
-//		} catch (IOException e) {}
+//			
+//		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); }
 //	}
+	public void run() {
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			Gson gson = new Gson();
+			String line = "";
+			while (sock != null && !sock.isClosed() && line != null && !line.equals("END")) {
+				line = in.readLine();
+				if (line != null) {
+					//System.out.println("Thread: " + this.getId() + " | " + line);
+					Message msg = new Message(null, null);
+					msg = gson.fromJson(line, msg.getClass());
+					System.out.println(msg.getMsg());
+					System.out.println(msg.getUser().getUsername());
+				}
+			}
+			sock.close();
+			//decIncomingConns();
+		} catch (IOException e) {}
+	}
 	
 	public static int getIncomingConns() { return incomingConns; } /** getIncomingConns(): @return incomingConns */
 	public static void setIncomingConns(int n) { incomingConns = n; } /** setIncomingConns(): @set incomingConns */
