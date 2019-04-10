@@ -210,6 +210,4 @@ public class Query {
 			stmt.executeUpdate("insert into FORUMS (USERS_ID, CONTENT, RATING) values("+userID+", \""+content+"\","+0+")");
 		}catch(SQLException e) {}
 	}
-	
-	
 }
