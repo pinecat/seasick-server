@@ -30,16 +30,6 @@ public class ConnThread extends Thread {
 	 * with .start(). Starts handling of a
 	 * client connection to the server.
 	 */
-//	public void run() {
-//		try {
-//			ObjectInputStream in = new ObjectInputStream(sock.getInputStream());
-//			while (sock != null && !sock.isClosed()) {
-//				Message msg = (Message) in.readObject();
-//				System.out.println(msg.getMsg());
-//			}
-//			
-//		} catch (IOException | ClassNotFoundException e) { e.printStackTrace(); }
-//	}
 	public void run() {
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
