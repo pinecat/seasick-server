@@ -52,7 +52,8 @@ public class ConnThread extends Thread {
 					Message msg = new Message(null, null);
 					msg = gson.fromJson(line, msg.getClass());
 					System.out.println(msg.getMsg());
-					System.out.println(msg.getUser().getUsername());
+					System.out.println(msg.getUser().getEmail());
+					System.out.println(msg.getUser().getPassword());
 				}
 			}
 			sock.close();
