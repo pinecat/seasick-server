@@ -46,6 +46,43 @@ public class Query {
 		} catch (SQLException e) {}
 		return rs;
 	}
+	
+	/**
+	 * authUser:
+	 * @param user - the user to be authenticated
+	 * @return true - if the user is successfully authenticated
+	 * 		   false - if the user is not authenticated
+	 * 
+	 * Attempts to authenticate a user.
+	 */
+	public boolean authUser(User partUser) {
+		Statement stmt = null;
+		ResultSet rs = null;
+		
+		if (emailExists(partUser.getEmail())) {
+			try {
+				stmt = conn.createStatement();
+				String q = "select * from USERS where EMAIL like '" + partUser.getEmail() + "'";
+				rs = stmt.executeQuery(q);
+				
+				User user = new User();
+				rs.next();
+				user.setUsername(rs.getString("USERNAME"));
+				user.setFname(rs.getString("FNAME"));
+				user.setLname(rs.getString("LNAME"));
+				user.setEmail(rs.getString("EMAIL"));
+				user.setPassword(rs.getString("PASSWORD"));
+				user.setEmNotify(rs.getBoolean("EMAIL_NOTIFY"));
+				user.setRep(rs.getDouble("REPUTATION"));
+				
+				// TODO: write subroutine to check partUser password against user hashed password
+				// TODO: write separate subroutine to query a single user, as opposed to putting it in authUser
+					// as we will need to query a single user for other things
+			} catch (SQLException e) {}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * insertUser:
