@@ -9,7 +9,19 @@ import java.io.Serializable;
 public class Message implements Serializable {
     private String msg;
     private User user;
-
+    
+    /**
+     * Message
+     * @param msg
+     * @param user
+     *
+     * Constructor for the Message class.
+     * Used to create a blank message (useful for message receiving).
+     */
+    public Message() {
+    	
+    }
+    
     /**
      * Message
      * @param msg
