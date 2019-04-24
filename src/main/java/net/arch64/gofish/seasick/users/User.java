@@ -14,7 +14,17 @@ public class User {
 	private String	lname;
 	private boolean	em_notify;
 	private double	rep;
-
+	
+	/**
+	 * User:
+	 *
+	 * Constructor for the User class. This is used
+	 * for creating a blank user.
+	 */
+	public User() {
+		
+	}
+	
 	/**
 	 * User:
 	 * @param username
@@ -79,4 +89,13 @@ public class User {
 	public String getLname() { return lname; }			/** getLname: @return lname */
 	public boolean getEmNotify() { return em_notify; }	/** getEmNotify: @return em_notify */
 	public double getRep() { return rep; }				/** getRep: @return rep */
+	
+	public void setId(int id) { this.id = id; }
+	public void setUsername(String username) { this.username = username; }
+	public void setPassword(String password) { this.password = password; }
+	public void setEmail(String email) { this.email = email; }
+	public void setFname(String fname) { this.fname = fname; }
+	public void setLname(String lname) { this.lname = lname; }
+	public void setEmNotify(boolean em_notify) { this.em_notify = em_notify; }
+	public void setRep(double rep) { this.rep = rep; }
 }
