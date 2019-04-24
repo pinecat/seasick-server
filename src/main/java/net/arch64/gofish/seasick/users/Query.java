@@ -9,7 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import net.arch64.gofish.seasick.core.Config;
+import net.arch64.gofish.seasick.queries.ProfilePageQuery;
 
 /* Class: Query */
 public class Query {
@@ -55,30 +58,16 @@ public class Query {
 	 * 
 	 * Attempts to authenticate a user.
 	 */
-	public boolean authUser(User partUser) {
-		Statement stmt = null;
-		ResultSet rs = null;
+	public boolean authUser(User authReqUser) {
+		String email = authReqUser.getEmail();
+		String pass = authReqUser.getPassword();
 		
-		if (emailExists(partUser.getEmail())) {
-			try {
-				stmt = conn.createStatement();
-				String q = "select * from USERS where EMAIL like '" + partUser.getEmail() + "'";
-				rs = stmt.executeQuery(q);
-				
-				User user = new User();
-				rs.next();
-				user.setUsername(rs.getString("USERNAME"));
-				user.setFname(rs.getString("FNAME"));
-				user.setLname(rs.getString("LNAME"));
-				user.setEmail(rs.getString("EMAIL"));
-				user.setPassword(rs.getString("PASSWORD"));
-				user.setEmNotify(rs.getBoolean("EMAIL_NOTIFY"));
-				user.setRep(rs.getDouble("REPUTATION"));
-				
-				// TODO: write subroutine to check partUser password against user hashed password
-				// TODO: write separate subroutine to query a single user, as opposed to putting it in authUser
-					// as we will need to query a single user for other things
-			} catch (SQLException e) {}
+		ProfilePageQuery ppq = new ProfilePageQuery(conn);
+		int id = ppq.getUserID(email);
+		User user = ppq.getUserAuthData(id);
+		
+		if (BCrypt.checkpw(pass, user.getPassword())) {
+			return true;
 		}
 		
 		return false;

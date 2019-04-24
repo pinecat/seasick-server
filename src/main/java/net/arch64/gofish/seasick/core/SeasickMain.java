@@ -29,20 +29,6 @@ public class SeasickMain {
 		Config conf = new Config("seasick.conf");
 		Query query = new Query(conf);
 		
-		/* database testing */
-		/* User insertion and deletion testing */
-		/*
-		User user = new User("testty", "idklol", "gimme@gimme.net", "Hallo", "vad", false);
-		query.insertUser(user);
-		query.dropUser(user);
-		query.close();
-		*/
-		
-		/*Testing for updating and reading data for the profile page*/
-		ProfilePageQuery profile = new ProfilePageQuery(conf);
-		profile.getProfileData(2);
-		profile.getUserID("retha@email.com");
-		
 		/* server testing */
 		System.out.println("Server started listening on port 12345....");
 		Server serve = new Server(12345, 1000);

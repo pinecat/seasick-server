@@ -25,6 +25,10 @@ public class ProfilePageQuery {
 		} catch (SQLException e) {}
 	}
 	
+	public ProfilePageQuery(Connection conn) {
+		this.conn = conn;
+	}
+	
 	/**
 	 * getProfileData:
 	 * 
@@ -49,6 +53,34 @@ public class ProfilePageQuery {
 				user.setEmail(EMAIL);
 				user.setFname(FNAME);
 				user.setLname(LNAME);
+			}
+		}catch(SQLException e) {}
+		return user;
+	}
+	
+	/**
+	 * getUserAuthData:
+	 * @param id
+	 * @return
+	 * 
+	 * Queries database with user id and returns user class with username, password, email.
+	 * Primarily used to authentication.
+	 */
+	public User getUserAuthData(int id) {
+		User user = new User();
+		PreparedStatement stmt=null;
+		ResultSet rs=null;
+		try {
+			stmt=conn.prepareStatement("select USERNAME, PASSWORD, EMAIL from USERS where USERS_ID = ?");
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				String USERNAME = rs.getString("USERNAME");
+				String PASSWORD = rs.getString("PASSWORD");
+				String EMAIL = rs.getString("EMAIL");
+				user.setUsername(USERNAME);
+				user.setPassword(PASSWORD);
+				user.setEmail(EMAIL);
 			}
 		}catch(SQLException e) {}
 		return user;
