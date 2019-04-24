@@ -1,4 +1,4 @@
-package net.arch64.gofish.seasick.forums;
+package net.arch64.gofish.seasick.queries;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,7 +42,7 @@ public class ForumsQuery {
 				String USERNAME = rs.getString("u.USERNAME");
 				String Content = rs.getString("f.Content");
 				double Rating = rs.getDouble("f.Rating");
-				System.out.printf("%d %s\n%s %.1f\n\n", POST_ID, USERNAME, Content, Rating);
+				//System.out.printf("%d %s\n%s %.1f\n\n", POST_ID, USERNAME, Content, Rating);
 			}
 		}catch(SQLException e) {}
 		return rs;
