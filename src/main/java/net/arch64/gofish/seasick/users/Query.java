@@ -9,7 +9,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import net.arch64.gofish.seasick.core.Config;
+import net.arch64.gofish.seasick.queries.ProfilePageQuery;
 
 /* Class: Query */
 public class Query {
@@ -55,30 +58,16 @@ public class Query {
 	 * 
 	 * Attempts to authenticate a user.
 	 */
-	public boolean authUser(User partUser) {
-		Statement stmt = null;
-		ResultSet rs = null;
+	public boolean authUser(User authReqUser) {
+		String email = authReqUser.getEmail();
+		String pass = authReqUser.getPassword();
 		
-		if (emailExists(partUser.getEmail())) {
-			try {
-				stmt = conn.createStatement();
-				String q = "select * from USERS where EMAIL like '" + partUser.getEmail() + "'";
-				rs = stmt.executeQuery(q);
-				
-				User user = new User();
-				rs.next();
-				user.setUsername(rs.getString("USERNAME"));
-				user.setFname(rs.getString("FNAME"));
-				user.setLname(rs.getString("LNAME"));
-				user.setEmail(rs.getString("EMAIL"));
-				user.setPassword(rs.getString("PASSWORD"));
-				user.setEmNotify(rs.getBoolean("EMAIL_NOTIFY"));
-				user.setRep(rs.getDouble("REPUTATION"));
-				
-				// TODO: write subroutine to check partUser password against user hashed password
-				// TODO: write separate subroutine to query a single user, as opposed to putting it in authUser
-					// as we will need to query a single user for other things
-			} catch (SQLException e) {}
+		ProfilePageQuery ppq = new ProfilePageQuery(conn);
+		int id = ppq.getUserID(email);
+		User user = ppq.getUserAuthData(id);
+		
+		if (BCrypt.checkpw(pass, user.getPassword())) {
+			return true;
 		}
 		
 		return false;
@@ -206,45 +195,5 @@ public class Query {
 			}
 		} catch(SQLException e) {}
 		return false;
-	}
-
-	/**
-	 * getForumsPosts
-	 * @return
-	 * 
-	 * Used to update the view for the app that shows the forum posts.
-	 * Gives the POST_ID, USERNAME, Content of the post, and Rating of the post (upvotes or likes on the post)
-	 */
-	public ResultSet getForumPosts() {
-		Statement stmt=null;
-		ResultSet rs=null;
-		try {
-			stmt=conn.createStatement();
-			rs=stmt.executeQuery("select f.POST_ID, u.USERNAME, f.Content, f.Rating from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
-			while(rs.next()) {
-				int POST_ID = rs.getInt("f.POST_ID");
-				String USERNAME = rs.getString("u.USERNAME");
-				String Content = rs.getString("f.Content");
-				double Rating = rs.getDouble("f.Rating");
-				System.out.printf("%d %s\n%s %.1f\n\n", POST_ID, USERNAME, Content, Rating);
-			}
-		}catch(SQLException e) {}
-		return rs;
-	}
-	
-	/**
-	 * makeForumPost:
-	 * 
-	 * add a forum post to the forum table in the database
-	 * the POST_ID is auto-incrementing in the database
-	 * needs the UserID, the content, and the rating for the post itself
-	 * the post rating should start at zero and be averaged out between the overall rating and how many people have rated it
-	 */
-	public void makeForumPost(int userID, String content) {
-		Statement stmt=null;
-		try {
-			stmt=conn.createStatement();
-			stmt.executeUpdate("insert into FORUMS (USERS_ID, CONTENT, RATING) values("+userID+", \""+content+"\","+0+")");
-		}catch(SQLException e) {}
 	}
 }
