@@ -2,12 +2,12 @@ package net.arch64.gofish.seasick.queries;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import net.arch64.gofish.seasick.core.Config;
+import net.arch64.gofish.seasick.forums.*;
 
 public class ForumsQuery {
 	private Connection conn;
@@ -31,7 +31,8 @@ public class ForumsQuery {
 	 * Used to update the view for the app that shows the forum posts.
 	 * Gives the POST_ID, USERNAME, Content of the post, and Rating of the post (upvotes or likes on the post)
 	 */
-	public ResultSet getForumPosts() {
+	public Forum getForumPosts() {
+		Forum forum = new Forum();
 		Statement stmt=null;
 		ResultSet rs=null;
 		try {
@@ -40,12 +41,16 @@ public class ForumsQuery {
 			while(rs.next()) {
 				int POST_ID = rs.getInt("f.POST_ID");
 				String USERNAME = rs.getString("u.USERNAME");
-				String Content = rs.getString("f.Content");
-				double Rating = rs.getDouble("f.Rating");
-				//System.out.printf("%d %s\n%s %.1f\n\n", POST_ID, USERNAME, Content, Rating);
+				String CONTENT = rs.getString("f.Content");
+				double RATING = rs.getDouble("f.Rating");
+				
+				forum.setRating(RATING);
+				forum.setContent(CONTENT);
+				forum.setUsername(USERNAME);
+				forum.setId(POST_ID);				
 			}
 		}catch(SQLException e) {}
-		return rs;
+		return forum;
 	}
 	
 	/**
