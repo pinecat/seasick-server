@@ -57,6 +57,7 @@ public class ForumsQuery {
 				forum.setLikes(LIKES);
 				forum.setDislikes(DISLIKES);
 				forum.setRating();
+				list.add(forum);
 			}
 		}catch(SQLException e) {}
 		return list;
