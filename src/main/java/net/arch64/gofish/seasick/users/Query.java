@@ -62,12 +62,17 @@ public class Query {
 		String email = authReqUser.getEmail();
 		String pass = authReqUser.getPassword();
 		
+		if (!emailExists(email)) {
+			return false;
+		}
+		
 		ProfilePageQuery ppq = new ProfilePageQuery(conn);
 		int id = ppq.getUserID(email);
 		User user = ppq.getUserAuthData(id);
-		
-		if (BCrypt.checkpw(pass, user.getPassword())) {
-			return true;
+		if (user != null) {
+			if (BCrypt.checkpw(pass, user.getPassword())) {
+				return true;
+			}
 		}
 		
 		return false;
@@ -79,16 +84,15 @@ public class Query {
 	 *
 	 * Inserts new user into MySQL database.
 	 */
-	public void insertUser(User user) {
+	public boolean insertUser(User user) {
 		Statement stmt = null; // create statement variable for use later for the query
 
-		/*
-		 * q, is the actual SQL statement to be executed.
-		 * This will be executed if no Fname or Fname and Lname is provided
-		 */
-
 		if(!userExists(user.getUsername()) && !emailExists(user.getEmail())) {
-
+			
+			/*
+			 * q, is the actual SQL statement to be executed.
+			 * This will be executed if no Fname or Fname and Lname is provided
+			 */
 			String q = "insert into USERS (" +
 					"USERNAME, PASSWORD, EMAIL, EMAIL_NOTIFY" +
 					") values ('" +
@@ -128,8 +132,14 @@ public class Query {
 			try {
 				stmt = conn.createStatement(); // create statement on the connection
 				stmt.executeUpdate(q); // execute the update q
-			} catch (SQLException e) {}
+			} catch (SQLException e) {
+				return false;
+			}
+		} else {
+			return false;
 		}
+		
+		return true;
 	}
 
 	/**
