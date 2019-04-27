@@ -41,7 +41,7 @@ public class ProfilePageQuery {
 		PreparedStatement stmt=null;
 		ResultSet rs=null;
 		try {
-			stmt=conn.prepareStatement("select USERNAME, EMAIL, FNAME, LNAME from USERS where USERS_ID = ?");
+			stmt=conn.prepareStatement("select USERNAME, EMAIL, FNAME, LNAME, REPUTATION from USERS where USERS_ID = ?");
 			stmt.setInt(1, userID);
 			rs = stmt.executeQuery();
 			while(rs.next()) {
@@ -49,10 +49,12 @@ public class ProfilePageQuery {
 				String EMAIL = rs.getString("EMAIL");
 				String FNAME = rs.getString("FNAME");
 				String LNAME = rs.getString("LNAME");
+				double REPUTATION = rs.getDouble("REPUTATION");
 				user.setUsername(USERNAME);
 				user.setEmail(EMAIL);
 				user.setFname(FNAME);
 				user.setLname(LNAME);
+				user.setRep(REPUTATION);
 			}
 		}catch(SQLException e) {}
 		return user;
