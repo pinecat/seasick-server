@@ -38,7 +38,7 @@ public class Forum {
 	public void setLikes(double likes) { this.likes = likes; }
 	public void setDislikes(double dislikes) { this.dislikes = dislikes; }
 	public void setRating() { 
-		if(likes != 0 && (likes+dislikes) != 0)
+		if(likes > 0 && (likes+dislikes) > 0)
 			this.rating = getLikes()/(getLikes()+getDislikes());
 		else
 			this.rating = 0.0;
