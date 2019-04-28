@@ -12,6 +12,7 @@ public class Forum {
 	private String 	locale;
 	private String 	region;
 	private String	countryCode;
+	private String	timeStamp;
 	private double	rating;
 	private double 	likes;
 	private double 	dislikes;
@@ -36,6 +37,7 @@ public class Forum {
 	public String getLocale() { return locale; }
 	public String getRegion() { return region; }
 	public String getCountryCode() { return countryCode; }
+	public String getTimeStamp() { return timeStamp; }
 	
 	public void setId(int id) { this.id = id; }
 	public void setUserId(int userId) { this.userId = userId; }
@@ -46,6 +48,7 @@ public class Forum {
 	public void setLocale(String locale) { this.locale = locale; }
 	public void setRegion(String region) { this.region = region; }
 	public void setCountryCode(String countryCode) { this.countryCode = countryCode; }
+	public void setTimeStamp(String timeStamp) { this.timeStamp = timeStamp; }
 	public void setRating() { 
 		if(likes > 0 && (likes+dislikes) > 0)
 			this.rating = getLikes()/(getLikes()+getDislikes());
