@@ -4,8 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import net.arch64.gofish.seasick.core.Config;
 import net.arch64.gofish.seasick.forums.*;
@@ -36,12 +39,13 @@ public class ForumsQuery {
 	public ArrayList<Forum> getForumPosts() {
 		Forum forum = null;
 		ArrayList<Forum> list = new ArrayList<>();
-		Statement stmt=null;
+		PreparedStatement stmt=null;
 		ResultSet rs=null;
 		try {
-			stmt=conn.createStatement();
-			rs=stmt.executeQuery("select u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
-			while(rs.next()) {
+			stmt=conn.prepareStatement("select u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE, f.TIME_STAMP from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
+			rs=stmt.executeQuery();
+			rs.last();
+			do {
 				forum = new Forum();
 				
 				int POST_ID = rs.getInt("f.POST_ID");
@@ -51,6 +55,7 @@ public class ForumsQuery {
 				String LOCALE = rs.getString("LOCALE");
 				String REGION = rs.getString("REGION");
 				String COUNTRY_CODE = rs.getString("COUNTRY_CODE");
+				String DATE_TIME = rs.getString("TIME_STAMP");
 				
 				int LIKES = (int)rs.getDouble("LIKES");
 				int DISLIKES = (int)rs.getDouble("DISLIKES");
@@ -62,18 +67,19 @@ public class ForumsQuery {
 				forum.setLocale(LOCALE);
 				forum.setRegion(REGION);
 				forum.setCountryCode(COUNTRY_CODE);
+				forum.setTimeStamp(DATE_TIME);
 				
 				forum.setLikes(LIKES);
 				forum.setDislikes(DISLIKES);
 				forum.setRating();
 				
 				list.add(forum);
-			}
+			}while(rs.previous());
 		}catch(SQLException e) {}
 
 		return list;
 	}
-
+	
 	/**
 	 * makeForumPost:
 	 * 
@@ -83,11 +89,26 @@ public class ForumsQuery {
 	 * the post rating should start at zero and be averaged out between the overall rating and how many people have rated it
 	 */
 	public void makeForumPost(int userID, String content) {
-		Statement stmt=null;
+		PreparedStatement stmt=null;
 		try {
-			stmt=conn.createStatement();
-			stmt.executeUpdate("insert into FORUMS (USERS_ID, CONTENT, RATING) values("+userID+", \""+content+"\","+0+")");
-		}catch(SQLException e) {}
+			
+			Date date = new Date();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			String dateString = dateFormat.format(date);
+			
+			stmt=conn.prepareStatement("insert into FORUMS(USERS_ID, CONTENT, RATING, LIKES, DISLIKES, TIME_STAMP)"
+					+ "values(?, ?, ?, ?, ?, ?)");
+			stmt.setInt(1,  userID);
+			stmt.setString(2, content);
+			stmt.setDouble(3,  0);
+			stmt.setDouble(4, 0);
+			stmt.setDouble(5, 0);
+			stmt.setString(6, dateString);
+			
+			stmt.executeUpdate();
+		}catch(SQLException e) {
+			System.out.println("Dumb");
+		}
 	}
 
 	/**
@@ -97,10 +118,11 @@ public class ForumsQuery {
 	 * @param post
 	 */
 	public void incrementLikes(Forum post) {
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		try {
-			stmt = conn.createStatement();
-			stmt.executeUpdate("update FORUMS set LIKES = LIKES + 1 where POST_ID = " + post.getId());
+			stmt = conn.prepareStatement("update FORUMS set LIKES = LIKES + 1 where POST_ID = ?");
+			stmt.setInt(1, post.getId());
+			stmt.executeUpdate();
 		}catch(SQLException e) {}
 	}
 	
@@ -111,10 +133,11 @@ public class ForumsQuery {
 	 * @param post
 	 */
 	public void incrementDislikes(Forum post) {
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		try {
-			stmt = conn.createStatement();
-			stmt.executeUpdate("update FORUMS set DISLIKES = DISLIKES + 1 where POST_ID = " + post.getId());
+			stmt = conn.prepareStatement("update FORUMS set DISLIKES = DISLIKES + 1 where POST_ID = ?");
+			stmt.setInt(1, post.getId());
+			stmt.executeUpdate();
 		}catch(SQLException e) {}
 	}
 	
@@ -125,11 +148,12 @@ public class ForumsQuery {
 	 * @param post
 	 */
 	public void updatePostRating(Forum post) {
-		Statement stmt = null;
+		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		try {
-			stmt = conn.createStatement();
-			rs = stmt.executeQuery("select RATING, LIKES, DISLIKES from FORUMS where POST_ID = " + post.getId());
+			stmt = conn.prepareStatement("select RATING, LIKES, DISLIKES from FORUMS where POST_ID = ?");
+			stmt.setInt(1,  post.getId());
+			rs = stmt.executeQuery();
 			while(rs.next()) {
 				double LIKES = rs.getDouble("LIKES");
 				double DISLIKES = rs.getDouble("DISLIKES");
