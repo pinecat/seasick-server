@@ -112,6 +112,22 @@ public class ForumsQuery {
 	}
 
 	/**
+	 * deletePost:
+	 * 
+	 * runs a preparedStatement to delete a post with the corresponding POST_ID
+	 * @param post
+	 */
+	public void deletePost(Forum post) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("delete from FORUMS where POST_ID = ?");
+			stmt.setInt(1,  post.getId());
+			stmt.executeUpdate();
+		}catch(SQLException e) {}
+	}
+	
+	
+	/**
 	 * incrementLikes:
 	 * 
 	 * Will increment the values of LIKES
