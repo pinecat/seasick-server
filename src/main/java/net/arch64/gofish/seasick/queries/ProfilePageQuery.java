@@ -49,11 +49,8 @@ public class ProfilePageQuery {
 				String EMAIL = rs.getString("EMAIL");
 				String FNAME = rs.getString("FNAME");
 				String LNAME = rs.getString("LNAME");
-<<<<<<< HEAD
-				
-=======
 				double REPUTATION = rs.getDouble("REPUTATION");
->>>>>>> 8e953e4e03d5d0c5b28c3e8410d1090518a1f58f
+				
 				user.setUsername(USERNAME);
 				user.setEmail(EMAIL);
 				user.setFname(FNAME);
