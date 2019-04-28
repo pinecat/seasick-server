@@ -49,6 +49,7 @@ public class ProfilePageQuery {
 				String EMAIL = rs.getString("EMAIL");
 				String FNAME = rs.getString("FNAME");
 				String LNAME = rs.getString("LNAME");
+				
 				user.setUsername(USERNAME);
 				user.setEmail(EMAIL);
 				user.setFname(FNAME);

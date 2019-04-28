@@ -84,6 +84,12 @@ public class ConnThread extends Thread {
 							out.flush();
 						}
 						break;
+					case "profilepage":
+						User sendUser = ppq.getProfileData(msg.getUser().getId());
+						Message send = new Message("profilepage", sendUser);
+						out.write(gson.toJson(send) + "\n");
+						out.flush();
+						break;
 					}
 				}
 			}
