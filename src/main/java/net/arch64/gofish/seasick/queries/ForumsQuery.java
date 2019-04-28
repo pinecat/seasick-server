@@ -40,18 +40,29 @@ public class ForumsQuery {
 		ResultSet rs=null;
 		try {
 			stmt=conn.createStatement();
-			rs=stmt.executeQuery("select f.POST_ID, u.USERNAME, f.Content, f.LIKES, f.DISLIKES from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
+			rs=stmt.executeQuery("select u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
 			while(rs.next()) {
 				forum = new Forum();
+				
 				int POST_ID = rs.getInt("f.POST_ID");
+				
 				String USERNAME = rs.getString("u.USERNAME");
 				String CONTENT = rs.getString("f.Content");
+				String LOCALE = rs.getString("LOCALE");
+				String REGION = rs.getString("REGION");
+				String COUNTRY_CODE = rs.getString("COUNTRY_CODE");
+				
 				int LIKES = (int)rs.getDouble("LIKES");
 				int DISLIKES = (int)rs.getDouble("DISLIKES");
 			
+				forum.setId(POST_ID);		
+
 				forum.setContent(CONTENT);
 				forum.setUsername(USERNAME);
-				forum.setId(POST_ID);		
+				forum.setLocale(LOCALE);
+				forum.setRegion(REGION);
+				forum.setCountryCode(COUNTRY_CODE);
+				
 				forum.setLikes(LIKES);
 				forum.setDislikes(DISLIKES);
 				forum.setRating();
