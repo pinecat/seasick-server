@@ -37,11 +37,12 @@ public class ForumsQuery {
 	 * Puts each forum post into an ArrayList to return to the front-end to be displayed
 	 */
 
-	public ArrayList<Forum> getForumPosts() {
+	public ArrayList<Forum> getForumPosts(String countryCode, String region, String locale) {
 		Forum forum = null;
 		ArrayList<Forum> list = new ArrayList<>();
 		PreparedStatement stmt=null;
 		ResultSet rs=null;
+		int count = 0;
 		try {
 			stmt=conn.prepareStatement("select u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE, f.TIME_STAMP from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
 			rs=stmt.executeQuery();
@@ -73,8 +74,15 @@ public class ForumsQuery {
 				forum.setLikes(LIKES);
 				forum.setDislikes(DISLIKES);
 				forum.setRating();
-				list.add(forum);
-			}while(rs.previous());
+				
+				if (countryCode != null && region != null && locale != null) {
+					if (countryCode.equals(COUNTRY_CODE) && region.equals(REGION) && locale.equals(LOCALE)) {
+						list.add(forum);
+					}
+				}
+				
+				count++;
+			}while(rs.previous() && count < 50);
 		}catch(SQLException e) {}
 		return list;
 	}
@@ -125,6 +133,15 @@ public class ForumsQuery {
 		}catch(SQLException e) {}
 	}
 	
+	public void decrementLikes(Forum post) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("update FORUMS set LIKES = LIKES - 1 where POST_ID = ?");
+			stmt.setInt(1, post.getId());
+			stmt.executeUpdate();
+		} catch (SQLException e) {}
+	}
+	
 	/**
 	 * incrementDislikes:
 	 * 
@@ -138,6 +155,15 @@ public class ForumsQuery {
 			stmt.setInt(1, post.getId());
 			stmt.executeUpdate();
 		}catch(SQLException e) {}
+	}
+	
+	public void decrementDislikes(Forum post) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("update FORUMS set DISLIKES = DISLIKES - 1 where POST_ID = ?");
+			stmt.setInt(1, post.getId());
+			stmt.executeUpdate();
+		} catch (SQLException e) {}
 	}
 	
 	/**

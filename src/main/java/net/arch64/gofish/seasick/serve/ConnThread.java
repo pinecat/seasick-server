@@ -40,6 +40,7 @@ public class ConnThread extends Thread {
 		Config conf = new Config("seasick.conf");
 		Query query = new Query(conf);
 		ProfilePageQuery ppq = new ProfilePageQuery(conf);
+		ForumsQuery fq = new ForumsQuery(conf);
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			//DataInputStream in = new DataInputStream(sock.getInputStream());
@@ -86,8 +87,19 @@ public class ConnThread extends Thread {
 						break;
 					case "profilepage":
 						User sendUser = ppq.getProfileData(msg.getUser().getId());
-						Message send = new Message("profilepage", sendUser);
-						out.write(gson.toJson(send) + "\n");
+						Message sendProfileData = new Message("profilepage", sendUser);
+						out.write(gson.toJson(sendProfileData) + "\n");
+						out.flush();
+						break;
+					case "forumrequest":
+						String countryCode = msg.getForumReq().getCountryCode();
+						String region = msg.getForumReq().getRegion();
+						String locale = msg.getForumReq().getLocale();
+						ForumRequest forumReq = new ForumRequest();
+						forumReq.setList(fq.getForumPosts(countryCode, region, locale));
+						Message sendForumsData = new Message();
+						sendForumsData.setForumReq(forumReq);
+						out.write(gson.toJson(sendForumsData) + "\n");
 						out.flush();
 						break;
 					}

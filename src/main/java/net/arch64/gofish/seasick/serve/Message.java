@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class Message implements Serializable {
     private String msg;
     private User user;
+    private ForumRequest forumReq;
     
     /**
      * Message
@@ -35,4 +36,7 @@ public class Message implements Serializable {
     
     public String getMsg() { return msg; } /** getMsg: @return msg */
     public User getUser() { return user; } /** getUser: @return user */
+    public ForumRequest getForumReq() { return forumReq; }
+    
+    public void setForumReq(ForumRequest forumReq) { this.forumReq = forumReq; }
 }
