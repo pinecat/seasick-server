@@ -12,6 +12,8 @@ import java.util.Date;
 
 import net.arch64.gofish.seasick.core.Config;
 import net.arch64.gofish.seasick.forums.*;
+import net.arch64.gofish.seasick.serve.ForumRequest;
+import net.arch64.gofish.seasick.users.User;
 
 public class ForumsQuery {
 	private Connection conn;
@@ -37,18 +39,27 @@ public class ForumsQuery {
 	 * Puts each forum post into an ArrayList to return to the front-end to be displayed
 	 */
 
-	public ArrayList<Forum> getForumPosts(String countryCode, String region, String locale) {
+	public ForumRequest getForumPosts(String countryCode, String region, String locale) {
+		ForumRequest forumReq = new ForumRequest();
 		Forum forum = null;
+		Vote vote = null;
 		ArrayList<Forum> list = new ArrayList<>();
+		ArrayList<Vote> votes = new ArrayList<>();
 		PreparedStatement stmt=null;
 		ResultSet rs=null;
 		int count = 0;
 		try {
-			stmt=conn.prepareStatement("select u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE, f.TIME_STAMP from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
+			stmt=conn.prepareStatement("select * from GOFISH.FORUMS f " + 
+					"left join GOFISH.USERS u " + 
+					"on f.USERS_ID = u.USERS_ID " + 
+					"left join GOFISH.FORUM_RATINGS r " + 
+					"on f.POST_ID = r.POST_ID");
+			//stmt=conn.prepareStatement("select u.USERS_ID, u.USERNAME, f.POST_ID, f.Content, f.LIKES, f.DISLIKES, f.LOCALE, f.REGION, f.COUNTRY_CODE, f.TIME_STAMP from FORUMS f left join USERS u on f.USERS_ID = u.USERS_ID");
 			rs=stmt.executeQuery();
 			rs.last();
 			do {
 				forum = new Forum();
+				vote = new Vote();
 				
 				int POST_ID = rs.getInt("f.POST_ID");
 				
@@ -75,6 +86,16 @@ public class ForumsQuery {
 				forum.setDislikes(DISLIKES);
 				forum.setRating();
 				
+				User user = new User();
+				int USERS_ID = rs.getInt("r.USER_ID");
+				int rating = rs.getInt("r.POST_RATING");
+				
+				user.setId(USERS_ID);
+				vote.setPostId(POST_ID);
+				vote.setUser(user);
+				vote.setVote(rating);
+				votes.add(vote);
+				
 				if (countryCode != null && region != null && locale != null) {
 					if (countryCode.equals(COUNTRY_CODE) && region.equals(REGION) && locale.equals(LOCALE)) {
 						list.add(forum);
@@ -84,7 +105,10 @@ public class ForumsQuery {
 				count++;
 			}while(rs.previous() && count < 50);
 		}catch(SQLException e) {}
-		return list;
+		
+		forumReq.setList(list);
+		forumReq.setVotes(votes);
+		return forumReq;
 	}
 	
 	/**
@@ -95,7 +119,7 @@ public class ForumsQuery {
 	 * needs the UserID, the content, and the rating for the post itself
 	 * the post rating should start at zero and be averaged out between the overall rating and how many people have rated it
 	 */
-	public void makeForumPost(int userID, String content) {
+	public void makeForumPost(int userID, String content, String countryCode, String region, String locale) {
 		PreparedStatement stmt=null;
 		try {
 			
@@ -103,14 +127,17 @@ public class ForumsQuery {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String dateString = dateFormat.format(date);
 			
-			stmt=conn.prepareStatement("insert into FORUMS(USERS_ID, CONTENT, RATING, LIKES, DISLIKES, TIME_STAMP)"
-					+ "values(?, ?, ?, ?, ?, ?)");
+			stmt=conn.prepareStatement("insert into FORUMS(USERS_ID, CONTENT, RATING, LIKES, DISLIKES, LOCALE, REGION, COUNTRY_CODE, TIME_STAMP)"
+					+ "values(?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			stmt.setInt(1,  userID);
 			stmt.setString(2, content);
 			stmt.setDouble(3,  0);
 			stmt.setDouble(4, 0);
 			stmt.setDouble(5, 0);
-			stmt.setString(6, dateString);
+			stmt.setString(6, locale);
+			stmt.setString(7, region);
+			stmt.setString(8, countryCode);
+			stmt.setString(9, dateString);
 			
 			stmt.executeUpdate();
 		}catch(SQLException e) {
@@ -124,20 +151,20 @@ public class ForumsQuery {
 	 * Will increment the values of LIKES
 	 * @param post
 	 */
-	public void incrementLikes(Forum post) {
+	public void incrementLikes(Vote vote) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement("update FORUMS set LIKES = LIKES + 1 where POST_ID = ?");
-			stmt.setInt(1, post.getId());
+			stmt.setInt(1, vote.getPostId());
 			stmt.executeUpdate();
 		}catch(SQLException e) {}
 	}
 	
-	public void decrementLikes(Forum post) {
+	public void decrementLikes(Vote vote) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement("update FORUMS set LIKES = LIKES - 1 where POST_ID = ?");
-			stmt.setInt(1, post.getId());
+			stmt.setInt(1, vote.getPostId());
 			stmt.executeUpdate();
 		} catch (SQLException e) {}
 	}
@@ -148,22 +175,57 @@ public class ForumsQuery {
 	 * Will increment only the value of DISLIKES by 1
 	 * @param post
 	 */
-	public void incrementDislikes(Forum post) {
+	public void incrementDislikes(Vote vote) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement("update FORUMS set DISLIKES = DISLIKES + 1 where POST_ID = ?");
-			stmt.setInt(1, post.getId());
+			stmt.setInt(1, vote.getPostId());
 			stmt.executeUpdate();
 		}catch(SQLException e) {}
 	}
 	
-	public void decrementDislikes(Forum post) {
+	public void decrementDislikes(Vote vote) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = conn.prepareStatement("update FORUMS set DISLIKES = DISLIKES - 1 where POST_ID = ?");
-			stmt.setInt(1, post.getId());
+			stmt.setInt(1, vote.getPostId());
 			stmt.executeUpdate();
 		} catch (SQLException e) {}
+	}
+	
+	public void updateForumRatings(String action, Vote vote) {
+		PreparedStatement stmt = null;
+		if (action.equals("upvote")) {
+			try {
+				stmt = conn.prepareStatement("insert into FORUM_RATINGS (POST_ID, USER_ID, POST_RATING) values (?, ?, ?)");
+				stmt.setInt(1, vote.getPostId());
+				stmt.setInt(2, vote.getUser().getId());
+				stmt.setInt(3, vote.getVote());
+				stmt.executeUpdate();
+			} catch (SQLException e) {}
+		} else if (action.equals("deupvote")) {
+			try {
+				stmt = conn.prepareStatement("delete from FORUM_RATINGS where POST_ID = ? and USER_ID = ?");
+				stmt.setInt(1, vote.getPostId());
+				stmt.setInt(2, vote.getUser().getId());
+				stmt.executeUpdate();
+			} catch (SQLException e) {}
+		} else if (action.equals("downvote")) {
+			try {
+				stmt = conn.prepareStatement("insert into FORUM_RATINGS (POST_ID, USER_ID, POST_RATING) values (?, ?, ?)");
+				stmt.setInt(1, vote.getPostId());
+				stmt.setInt(2, vote.getUser().getId());
+				stmt.setInt(3, vote.getVote());
+				stmt.executeUpdate();
+			} catch (SQLException e) {}
+		} else if (action.equals("dedownvote")) {
+			try {
+				stmt = conn.prepareStatement("delete from FORUM_RATINGS where POST_ID = ? and USER_ID = ?");
+				stmt.setInt(1, vote.getPostId());
+				stmt.setInt(2, vote.getUser().getId());
+				stmt.executeUpdate();
+			} catch (SQLException e) {}
+		}
 	}
 	
 	/**

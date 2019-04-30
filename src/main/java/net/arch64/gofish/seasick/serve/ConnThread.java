@@ -95,11 +95,44 @@ public class ConnThread extends Thread {
 						String countryCode = msg.getForumReq().getCountryCode();
 						String region = msg.getForumReq().getRegion();
 						String locale = msg.getForumReq().getLocale();
-						ForumRequest forumReq = new ForumRequest();
-						forumReq.setList(fq.getForumPosts(countryCode, region, locale));
+						ForumRequest forumReq = fq.getForumPosts(countryCode, region, locale);
 						Message sendForumsData = new Message();
 						sendForumsData.setForumReq(forumReq);
 						out.write(gson.toJson(sendForumsData) + "\n");
+						out.flush();
+						break;
+					case "makeforumpost":
+						int userId = msg.getForumReq().getPost().getUserId();
+						String content = msg.getForumReq().getPost().getContent();
+						String cc = msg.getForumReq().getPost().getCountryCode();
+						String reg = msg.getForumReq().getPost().getRegion();
+						String loc = msg.getForumReq().getPost().getLocale();
+						fq.makeForumPost(userId, content, cc, reg, loc);
+						out.write("didit" + "\n");
+						out.flush();
+						break;
+					case "upvote":
+						fq.incrementLikes(msg.getForumReq().getVote());
+						fq.updateForumRatings("upvote", msg.getForumReq().getVote());
+						out.write("didit" + "\n");
+						out.flush();
+						break;
+					case "deupvote":
+						fq.decrementLikes(msg.getForumReq().getVote());
+						fq.updateForumRatings("deupvote", msg.getForumReq().getVote());
+						out.write("didit" + "\n");
+						out.flush();
+						break;
+					case "downvote":
+						fq.incrementDislikes(msg.getForumReq().getVote());
+						fq.updateForumRatings("downvote", msg.getForumReq().getVote());
+						out.write("didit" + "\n");
+						out.flush();
+						break;
+					case "dedownvote":
+						fq.decrementDislikes(msg.getForumReq().getVote());
+						fq.updateForumRatings("dedownvote", msg.getForumReq().getVote());
+						out.write("didit" + "\n");
 						out.flush();
 						break;
 					}
